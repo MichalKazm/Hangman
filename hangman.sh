@@ -23,3 +23,20 @@ declare -a GUESSED
 for (( i=0; i<26; i++ )); do
 	GUESSED+=(0)
 done
+
+# Printing function
+print() {
+	clear
+	for LETTER in "${LETTERS[@]}"; do
+		# Change character to a value where A is 0, B is 1 and so on
+		CHAR_VAL=$(printf "%d" "'$LETTER")
+		CHAR_VAL=$((CHAR_VAL - 65))
+
+		# Print the letter if it was guessed or '_' if it wasn't
+		if [ "${GUESSED[CHAR_VAL]}" -eq 1 ]; then
+			echo -n "$LETTER"
+		else
+			echo -n "_"
+		fi
+	done
+}
