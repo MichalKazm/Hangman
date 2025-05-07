@@ -39,4 +39,39 @@ print() {
 			echo -n "_"
 		fi
 	done
+
+	echo
+	echo -n "Insert letter to be guessed: "
 }
+
+# Main game loop
+while :
+do
+	print
+
+	read GUESS
+
+	# Check if only one letter was inserted
+	if [ "${#GUESS}" -eq 1 ]; then
+		# Change to upper letter
+		GUESS=${GUESS^^}
+
+		# Change letter to value where A-0, B-1, ...
+		GUESS_VAL=$(printf "%d" "'$GUESS")
+		GUESS_VAL=$((GUESS_VAL - 65))
+
+		# Check if player inserted a letter
+		if [[ "$GUESS_VAL" -ge 0 && "$GUESS_VAL" -le 26 ]]; then
+			# Check if letter wasn't guessed previously
+			if [ "${GUESSED[GUESS_VAL]}" -eq 0 ]; then
+				GUESSED[$GUESS_VAL]=1
+			else
+				zenity --warning --text "Letter was guessed before!"
+			fi
+		else
+			zenity --error --text "Insert only letters!"
+		fi
+	else
+		zenity --error --text "Insert only one letter!"
+	fi
+done
