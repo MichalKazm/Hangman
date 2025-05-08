@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Number of possible wrong guesses
+LIVES=6
+
 # File containig list of words from which one will be chosen
 DICTIONARY="/usr/share/dict/words"
 
@@ -65,13 +68,25 @@ do
 			# Check if letter wasn't guessed previously
 			if [ "${GUESSED[GUESS_VAL]}" -eq 0 ]; then
 				GUESSED[$GUESS_VAL]=1
+
+				# Check if guess was correct
+				if [[ "$WORD" != *"$GUESS"* ]]; then
+					((LIVES--))
+				fi
 			else
 				zenity --warning --text "Letter was guessed before!"
+				((LIVES--))
 			fi
 		else
 			zenity --error --text "Insert only letters!"
+			((LIVES--))
 		fi
 	else
 		zenity --error --text "Insert only one letter!"
+		((LIVES--))
+	fi
+
+	if [ "$LIVES" -le 0 ]; then
+		break
 	fi
 done
