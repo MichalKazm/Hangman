@@ -36,7 +36,7 @@ print() {
 		CHAR_VAL=$((CHAR_VAL - 65))
 
 		# Print the letter if it was guessed or '_' if it wasn't
-		if [ "${GUESSED[CHAR_VAL]}" -eq 1 ]; then
+		if [ "${GUESSED[$CHAR_VAL]}" -eq 1 ]; then
 			echo -n "$LETTER"
 		else
 			echo -n "_"
@@ -45,6 +45,22 @@ print() {
 
 	echo
 	echo -n "Insert letter to be guessed: "
+}
+
+# End game check
+isGuessed() {
+	for LETTER in "${LETTERS[@]}"; do
+                # Change character to a value where A is 0, B is 1 and so on
+                CHAR_VAL=$(printf "%d" "'$LETTER")
+                CHAR_VAL=$((CHAR_VAL - 65))
+
+                # Check if there is an unguessed letter
+                if [ "${GUESSED[$CHAR_VAL]}" -eq 0 ]; then
+                        return 1
+                fi
+        done
+
+	return 0
 }
 
 # Main game loop
@@ -87,6 +103,80 @@ do
 	fi
 
 	if [ "$LIVES" -le 0 ]; then
+		# Every letter that was guessed during the game which will be displayed in end message
+                GUESSED_LETTERS=""
+                N_GUESSED=0
+                for (( i=0; i<26; i++ )); do
+                        if [ "${GUESSED[$i]}" -eq 1 ]; then
+                                GUESSED_LETTERS+=$(printf \\$(printf "%03o" $(( i + 65))))
+                                GUESSED_LETTERS+=", "
+                                ((N_GUESSED++))
+                        fi
+                done
+
+                # If there was a guessed letter remove the ', ' after last letter
+                if [ "$GUESSED_LETTERS" != "" ]; then
+                        GUESSED_LETTERS=${GUESSED_LETTERS::-2}
+                fi
+
+		# Final version of the word before the end of the game
+		FINAL_WORD=""
+		for LETTER in "${LETTERS[@]}"; do
+                	# Change character to a value where A is 0, B is 1 and so on
+                	CHAR_VAL=$(printf "%d" "'$LETTER")
+                	CHAR_VAL=$((CHAR_VAL - 65))
+
+                	# Print the letter if it was guessed or '_' if it wasn't
+                	if [ "${GUESSED[$CHAR_VAL]}" -eq 1 ]; then
+                	        FINAL_WORD+="$LETTER"
+                	else
+                	        FINAL_WORD+="_"
+                	fi
+        	done
+
+		# End message
+		zenity --error \
+                --title "YOU LOST" \
+                --width=300 \
+                --height=200 \
+                --text "Unfortuanately you run out of guesses and lost the game.\n\nCorrect word: $WORD\nFinal state of the word:$FINAL_WORD\nYour guesses: $GUESSED_LETTERS"
+		break
+	fi
+
+	if isGuessed; then
+		# Every letter that was guessed during the game which will be displayed in end message
+		GUESSED_LETTERS=""
+		N_GUESSED=0
+		for (( i=0; i<26; i++ )); do
+			if [ "${GUESSED[$i]}" -eq 1 ]; then
+				GUESSED_LETTERS+=$(printf \\$(printf "%03o" $(( i + 65))))
+				GUESSED_LETTERS+=", "
+				((N_GUESSED++))
+			fi
+		done
+
+		# If there was a guessed letter remove the ', ' after last letter
+		if [ "$GUESSED_LETTERS" != "" ]; then
+			GUESSED_LETTERS=${GUESSED_LETTERS::-2}
+		fi
+
+		# Number of incorrect guesses
+		LOST_LIVES=$(( 6 - LIVES ))
+
+		# Calculating score (100 points for each letter of the word, 200 points for each unique letter of the word, -50 points for each incorrect guess)
+		SCORE=$(( LENGTH * 100 + $(printf "%s\n" "${LETTERS[@]}" | sort -u | wc -l) * 200 - LOST_LIVES * 50 ))
+
+		# Refresh text
+		print
+
+		# End message
+		zenity --info \
+		--title "YOU WIN" \
+		--width=300 \
+		--height=200 \
+		--text "Congratulations, you won the game!\n\nCorrect word: $WORD\nYour guesses: $GUESSED_LETTERS\nIncorrect guesses: $LOST_LIVES\nScore: $SCORE"
 		break
 	fi
 done
+
+clear
