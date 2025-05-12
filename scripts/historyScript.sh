@@ -1,19 +1,22 @@
 #!/bin/bash
 
+# Path to a file with history
+FILE="files/gameHistory"
+
 # Check if there is history
-if [ ! -f "history/gameHistory" ]; then
+if [ ! -f "$FILE" ]; then
 	echo "Play some games before checking history"
 	exit 1
 fi
 
 # Number of games on one page
-N=$(sed -n "1p" "meta/config")
+N=$(sed -n "1p" "files/config")
 
 # Which page to print
 OFFSET=0
 
 # Number of games in history
-L=$(cat "history/gameHistory" | wc -l)
+L=$(cat "$FILE" | wc -l)
 
 # Main loop
 while :
@@ -25,7 +28,7 @@ do
 		INDEX=$(( L - i - OFFSET * N ))
 		if (( INDEX > 0)); then
 			# Get correct game from history
-			LINE=$(sed -n "${INDEX}p" "history/gameHistory")
+			LINE=$(sed -n "${INDEX}p" "$FILE")
 
 			# Get status of the game
 			STATUS=$(echo "$LINE" | cut -d ";" -f 2)
