@@ -1,0 +1,52 @@
+.TH HANGMAN 1 "13 May 2025" "1.0" "User Commands"
+.SH NAME
+hangman \- Clasic terminal based hangman game
+.SH SYNOPSIS
+.B ./hangman.sh
+[\-h] [\-v] [\-q]
+.SH DESCRIPTION
+.B Rules:
+.nf
+
+You get a random word that you need to guess.
+You guess one letter at a time.
+Every correct guess reveals every instance of that letter in the word.
+Every mistake removes one life.
+
+You have 6 lives.
+Game ends after losing the last life or guessing the last letter.
+.fi
+
+.B Ranking:
+.nf
+
+Game features score and ranking system.
+Score is counted only for won games.
+.fi
+
+.B Points are:
+.TP
++100 points for each letter of the word
+.TP
++200 points for each unique letter of the word
+.TP
+-50 points for each incorrect guess
+.SH OPTIONS
+.TP
+.B \-h
+.br
+Display help and game instructions.
+
+.TP
+.B \-v
+.br
+Display version and author information.
+
+.TP
+.B \-q
+.br
+Quit the game immediately.
+.SH AUTHOR
+Michal Kazmierowski
+.SH COPYRIGHT
+Copyright (c) 2025 Michal Kazmierowski. Licensed under GPL (see /usr/share/common-licenses/GPL for more details.
